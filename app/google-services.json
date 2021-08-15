@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "473537693991",
+    "project_id": "projectkapadh",
+    "storage_bucket": "projectkapadh.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473537693991:android:63ff3c00c7a6f7111e0102",
+        "android_client_info": {
+          "package_name": "com.example.projectkapadh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "473537693991-i90efikvhv2hktomk1prd0jc65r69jo3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnmB6Av4iSjV7hWJc6ZOpxrBwISsOD1jc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "473537693991-i90efikvhv2hktomk1prd0jc65r69jo3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
