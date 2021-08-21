@@ -58,10 +58,12 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import timerx.Stopwatch;
@@ -161,7 +163,7 @@ public class RecordingActivity extends AppCompatActivity {
                 if(!timingACTV.getText().toString().isEmpty()){
                     if(!queryIET.getText().toString().isEmpty()){
                         if(!recordQueryBtn.getText().toString().equals("Record")){
-                            BookServiceAndUpdateDate();
+                            checkOrderNumber();
                         }else{
                             Toast.makeText(RecordingActivity.this, "Please record query in voice", Toast.LENGTH_SHORT).show();
                         }
@@ -197,9 +199,28 @@ public class RecordingActivity extends AppCompatActivity {
         File file = new File(musicDirectory, "Query_to_" + title + ".mp3");
         return file.getPath();
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void BookServiceAndUpdateDate() {
+    private void checkOrderNumber(){
+        String orderNo = orderNumbers();
+        databaseReference.child("OrderNumbers").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.hasChild(orderNo)){
+                    checkOrderNumber();
+                }else{
+                    BookServiceAndUpdateDate(orderNo);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void BookServiceAndUpdateDate(String orderNumber){
 
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Please wait...");
@@ -241,6 +262,12 @@ public class RecordingActivity extends AppCompatActivity {
         OrderDetails.put("SpTiming", ServiceTiming);
         OrderDetails.put("AudioFilePath", filePath);
 
+        HashMap<String, Object> OrderDetailsSP = new HashMap<>();
+        OrderDetailsSP.put("CustomerName", SpName);
+        OrderDetailsSP.put("PaymentStatus", "Pending");
+        OrderDetailsSP.put("QueryText", queryIET.getText().toString());
+        OrderDetailsSP.put("Timing", timingACTV.getText().toString());
+
         StorageReference reference = storageReference.child("audio").child(mAuth.getCurrentUser().getUid());
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType("audio/mpeg")
@@ -255,22 +282,32 @@ public class RecordingActivity extends AppCompatActivity {
                         public void onSuccess(Uri uri) {
                             String audioUrl = String.valueOf(uri);
                             OrderDetails.put("AudioUrl", audioUrl);
+                            OrderDetailsSP.put("QueryVoiceUrl", audioUrl);
+                            OrderDetailsSP.put("OrderNo", orderNumber);
 
-                            databaseReference.child("ServiceProviders").child(SpUID).child("Orders").child("JobsPending").push().setValue(OrderDetails)
+                            databaseReference.child("ServiceProviders").child(SpUID).child("Orders").child("JobsPending").child(orderNumber).setValue(OrderDetailsSP)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                databaseReference.child("Users").child(UserUID).child("UserOrderHistory").push().setValue(OrderDetails)
+                                                databaseReference.child("Users").child(UserUID).child("UserOrderHistory").child(orderNumber).setValue(OrderDetails)
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                             @Override
                                                             public void onComplete(@NonNull @NotNull Task<Void> task) {
                                                                 if (task.isSuccessful()) {
                                                                     //Toast.makeText(RecordingActivity.this, "Order Placed", Toast.LENGTH_SHORT).show();
-                                                                    progressDialog.dismiss();
-                                                                    showOrderPlacedDialog();
+                                                                    databaseReference.child("OrderNumbers").child(orderNumber).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            if(task.isSuccessful()){
+                                                                                progressDialog.dismiss();
+                                                                                showOrderPlacedDialog();
+                                                                            }
+                                                                        }
+                                                                    });
                                                                 }
                                                             }
+
                                                         });
                                             }
                                         }
@@ -283,6 +320,12 @@ public class RecordingActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private String orderNumbers(){
+        String orderNo;
+        orderNo = new DecimalFormat("000000000").format(111111111 + new Random().nextInt(999999999));
+        return orderNo;
     }
 
 
