@@ -110,6 +110,7 @@ public class ShowItemRecyclerviewAdapter extends RecyclerView.Adapter<ShowItemRe
                                 Intent intent = new Intent(itemView.getContext(), ServiceProviderListActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 intent.putExtra("SplTitle", title);
                                 itemView.getContext().startActivity(intent);
+
                             }
                         });
 

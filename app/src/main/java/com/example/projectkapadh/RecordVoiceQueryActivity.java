@@ -187,12 +187,14 @@ public class RecordVoiceQueryActivity extends AppCompatActivity {
                     start_stopBTN.setImageResource(R.drawable.ic_baseline_stop_24);
                     rippleBackground.startRippleAnimation();
                     recordBtnPress();
+
                 } else {
 
                     isStopEnable = true;
                     start_stopBTN.setImageResource(R.drawable.ic_baseline_mic_24);
                     rippleBackground.stopRippleAnimation();
                     stopBtnPress();
+
                 }
             }
         });
@@ -249,11 +251,8 @@ public class RecordVoiceQueryActivity extends AppCompatActivity {
         try {
             mediaRecorder = new MediaRecorder();
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mediaRecorder.setAudioEncodingBitRate(16*44100);
-            mediaRecorder.setAudioSamplingRate(44100);
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            String loc=getExternalCacheDir().getAbsolutePath()+ "/" + "AudioRecording.3gp";
-            mediaRecorder.setOutputFile(loc);
+            mediaRecorder.setOutputFile(getRecordingFilePath());
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             mediaRecorder.prepare();
             mediaRecorder.start();

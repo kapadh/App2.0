@@ -94,7 +94,9 @@ public class ServiceProviderListItemAdapter extends RecyclerView.Adapter<Service
                 public void onClick(View v) {
                     itemView.getContext().startActivity(new Intent(itemView.getContext(), RecordingActivity.class)
                             .putExtra("SpName", SplName.getText().toString())
-                            .putExtra("SpUID", SpUID));
+                            .putExtra("SpUID", SpUID)
+                            .putExtra("SpFee", SplFee.getText().toString())
+                            .putExtra("Ratings", SplRatings.getText().toString()));
                 }
             });
 

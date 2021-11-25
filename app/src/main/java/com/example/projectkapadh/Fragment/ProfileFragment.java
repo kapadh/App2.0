@@ -89,7 +89,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
 
-    private TextView FullName, MobileNumber, isMobileVerifiedText, Email, isEmailVerifiedText, Address;
+    public static TextView FullName, MobileNumber, isMobileVerifiedText, Email, isEmailVerifiedText, Address;
     private ImageView ProfileCover;
     private RoundedImageView ProfilePic;
     private Button verifyMobileNumberBtn, verifyEmailBtn, verifyAddressBtn;
@@ -268,7 +268,6 @@ public class ProfileFragment extends Fragment {
                                     else{
 
                                         progressBar.setVisibility(View.VISIBLE);
-
                                         userDatabaseRef.child("MobileNumber").setValue(phoneNumber.getText().toString())
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override

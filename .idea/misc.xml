@@ -3,9 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="app/src/main/res/layout/activity_record_voice_query.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_record_voice_query.xml" value="0.18" />
         <entry key="app/src/main/res/layout/activity_recording.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_show_item_recyclerview.xml" value="0.16111111111111112" />
+        <entry key="app/src/main/res/layout/ad_new_address_dialog_layout.xml" value="0.16111111111111112" />
         <entry key="app/src/main/res/layout/audio_player_dialog.xml" value="0.1486111111111111" />
+        <entry key="app/src/main/res/layout/consultancies_layout.xml" value="0.16111111111111112" />
         <entry key="app/src/main/res/layout/fragment_history.xml" value="0.16111111111111112" />
       </map>
     </option>

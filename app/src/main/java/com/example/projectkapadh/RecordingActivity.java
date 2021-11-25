@@ -75,12 +75,13 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.ContentValues.TAG;
+import static com.example.projectkapadh.Fragment.ProfileFragment.FullName;
 
 
 public class RecordingActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private String title, SpUID;
+    private String SpUID;
 
     private Button bookServiceBtn;
     private ArrayList<String> spinnerList;
@@ -96,6 +97,7 @@ public class RecordingActivity extends AppCompatActivity {
     public static String AudioFilePath = null;
     public static TextView recordQueryBtn;
     private TextInputEditText queryIET;
+    String ServiceProviderName, ServiceProviderFee, ServiceProviderRatings;
 
 
     @Override
@@ -112,13 +114,15 @@ public class RecordingActivity extends AppCompatActivity {
         storageReference = FirebaseStorage.getInstance().getReference();
 
         if (getIntent() != null) {
-            title = getIntent().getStringExtra("SpName");
+            ServiceProviderName = getIntent().getStringExtra("SpName");
             SpUID = getIntent().getStringExtra("SpUID");
             AudioFilePath = getIntent().getStringExtra("AudioFilePath");
+            ServiceProviderFee = getIntent().getStringExtra("SpFee");
+            ServiceProviderRatings = getIntent().getStringExtra("Ratings");
         }
 
         toolbar = findViewById(R.id.recordingToolbar);
-        toolbar.setTitle(title);
+        toolbar.setTitle(ServiceProviderName);
         setActionBar(toolbar);
         View view = toolbar.getChildAt(1);
         view.setOnClickListener(new View.OnClickListener() {
@@ -163,7 +167,7 @@ public class RecordingActivity extends AppCompatActivity {
                 if(!timingACTV.getText().toString().isEmpty()){
                     if(!queryIET.getText().toString().isEmpty()){
                         if(!recordQueryBtn.getText().toString().equals("Record")){
-                            checkOrderNumber();
+                            BookServiceAndUpdateDate();
                         }else{
                             Toast.makeText(RecordingActivity.this, "Please record query in voice", Toast.LENGTH_SHORT).show();
                         }
@@ -185,7 +189,7 @@ public class RecordingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(RecordingActivity.this, RecordVoiceQueryActivity.class)
-                        .putExtra("SpName", title)
+                        .putExtra("SpName", ServiceProviderName)
                         .putExtra("FilePath", getRecordingFilePath()));
             }
         });
@@ -196,31 +200,33 @@ public class RecordingActivity extends AppCompatActivity {
     private String getRecordingFilePath() {
         ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
         File musicDirectory = contextWrapper.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-        File file = new File(musicDirectory, "Query_to_" + title + ".mp3");
+        File file = new File(musicDirectory, "Query_to_" + ServiceProviderName + ".mp3");
         return file.getPath();
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void checkOrderNumber(){
-        String orderNo = orderNumbers();
-        databaseReference.child("OrderNumbers").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.hasChild(orderNo)){
-                    checkOrderNumber();
-                }else{
-                    BookServiceAndUpdateDate(orderNo);
-                }
-            }
+//    private void checkOrderNumber(){
+//        String orderNo = orderNumbers();
+//        databaseReference.child("OrderNumbers").addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.hasChild(orderNo)){
+//                    checkOrderNumber();
+//                }else{
+//                    BookServiceAndUpdateDate(orderNo);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+    private void BookServiceAndUpdateDate(){
 
-            }
-        });
-    }
-
-    private void BookServiceAndUpdateDate(String orderNumber){
+        String orderNumber = orderNumbers();
 
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Please wait...");
@@ -246,9 +252,9 @@ public class RecordingActivity extends AppCompatActivity {
         String Date = dateToStr;
         String ServiceTiming = Timing;
         String orderStatus = "Pending";
-        String SpName = "Pankaj";
-        String SpFee = "Rs. 200";
-        String SpRatings = "4.6";
+        String SpName = ServiceProviderName;
+        String SpFee = ServiceProviderFee;
+        String SpRatings = ServiceProviderRatings;
         String SpSubCat = "Nothing Yet";
         String filePath = AudioFilePath;
 
@@ -263,7 +269,7 @@ public class RecordingActivity extends AppCompatActivity {
         OrderDetails.put("AudioFilePath", filePath);
 
         HashMap<String, Object> OrderDetailsSP = new HashMap<>();
-        OrderDetailsSP.put("CustomerName", SpName);
+        OrderDetailsSP.put("CustomerName", FullName.getText().toString());
         OrderDetailsSP.put("PaymentStatus", "Pending");
         OrderDetailsSP.put("QueryText", queryIET.getText().toString());
         OrderDetailsSP.put("Timing", timingACTV.getText().toString());
@@ -296,15 +302,8 @@ public class RecordingActivity extends AppCompatActivity {
                                                             public void onComplete(@NonNull @NotNull Task<Void> task) {
                                                                 if (task.isSuccessful()) {
                                                                     //Toast.makeText(RecordingActivity.this, "Order Placed", Toast.LENGTH_SHORT).show();
-                                                                    databaseReference.child("OrderNumbers").child(orderNumber).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                        @Override
-                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                            if(task.isSuccessful()){
-                                                                                progressDialog.dismiss();
-                                                                                showOrderPlacedDialog();
-                                                                            }
-                                                                        }
-                                                                    });
+                                                                    progressDialog.dismiss();
+                                                                    showOrderPlacedDialog();
                                                                 }
                                                             }
 
@@ -323,9 +322,14 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     private String orderNumbers(){
+
+        Date today = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("ddMMyyyyhhmm");
+        String dateToStr = format.format(today);
+
         String orderNo;
         orderNo = new DecimalFormat("000000000").format(111111111 + new Random().nextInt(999999999));
-        return orderNo;
+        return dateToStr+orderNo;
     }
 
 
